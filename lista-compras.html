@@ -305,8 +305,10 @@ function updateTotals(){
   bar.querySelector('i').style.width=pct+'%'; bar.classList.toggle('full',done===total&&total>0);
   document.getElementById('m-spent').textContent=fmt(spent);
   document.getElementById('m-count').textContent=`${priced}/${total}`;
-  const est=priced>0?(spent/priced)*total:0;
-  document.getElementById('m-est').textContent=fmt(est);
+  let est=null;
+  if(priced===total&&total>0) est=spent;            // todo con precio → total real
+  else if(total>0&&priced/total>=0.5) est=(spent/priced)*total; // proyección solo con datos suficientes
+  document.getElementById('m-est').textContent=(est===null)?'—':fmt(est);
   updateFin();
 }
 
