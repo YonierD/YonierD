@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de compras · Yonier Dávila</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0c0b; --header:#06100e; --card:#14181a; --card2:#1b2124; --line:#272f2f;
+    --ink:#eaf0ec; --muted:#8b9691; --done:#5c6763;
+    --teal:#19c2ad; --teal-dark:#0f9384; --lime:#c8f24e;
+    --head-font:'Barlow Semi Condensed',system-ui,sans-serif;
+    --body-font:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--bg); color:var(--ink); font-family:var(--body-font); line-height:1.4; padding-bottom:40px; }
+
+  header{ background:var(--header); color:var(--ink); padding:18px 18px 0;
+    position:sticky; top:0; z-index:20; box-shadow:0 6px 20px rgba(0,0,0,.4); border-bottom:1px solid var(--line);}
+  .brand{ display:flex; align-items:center; gap:11px; margin:0 0 12px; }
+  .brand .yd{ font-family:var(--head-font); font-weight:800; font-size:22px; color:var(--lime); letter-spacing:.03em;
+    display:inline-flex; align-items:center; gap:6px; }
+  .brand .yd .sq{ width:9px; height:16px; background:var(--teal); transform:skewX(-12deg); border-radius:1px; }
+  .brand .rule{ width:1px; height:16px; background:var(--line); }
+  .brand .plan{ font-size:12px; color:var(--muted); font-weight:600; }
+  h1{ font-family:var(--head-font); font-weight:700; font-size:23px; margin:0 0 3px; letter-spacing:.005em; }
+  .sub{ font-size:12.5px; color:var(--muted); margin:0 0 14px; }
+  .sub b{ color:var(--ink); font-weight:600; }
+
+  .tabs{ display:flex; gap:0; }
+  .tab{ flex:1; text-align:center; cursor:pointer; font-family:var(--head-font); font-weight:700;
+    font-size:15px; letter-spacing:.02em; padding:12px 4px 13px; color:var(--muted);
+    background:transparent; border:none; border-bottom:3px solid transparent; transition:color .12s; }
+  .tab small{ display:block; font-family:var(--body-font); font-weight:500;
+    font-size:10.5px; letter-spacing:.04em; margin-top:1px; opacity:.8; }
+  .tab[aria-selected="true"]{ color:var(--ink); border-bottom-color:var(--teal); }
+
+  .progress-wrap{ padding:12px 18px 14px; background:var(--card);
+    border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10;}
+  .progress-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px;}
+  .progress-count{ font-family:var(--head-font); font-weight:700; font-size:14px; }
+  .progress-count b{ color:var(--teal); }
+  .reset{ font-family:var(--body-font); font-size:12px; font-weight:600; color:var(--muted);
+    background:none; border:1px solid var(--line); border-radius:20px; padding:5px 12px; cursor:pointer; }
+  .reset:active{ background:var(--card2); }
+  .bar{ height:6px; background:var(--card2); border-radius:6px; overflow:hidden; }
+  .bar > i{ display:block; height:100%; width:0%; background:var(--teal); border-radius:6px; transition:width .25s ease; }
+  .bar.full > i{ background:var(--lime); }
+
+  .money{ display:flex; gap:8px; margin-top:12px; }
+  .m-item{ flex:1; background:var(--card2); border:1px solid var(--line);
+    border-radius:10px; padding:8px 10px; text-align:center; }
+  .m-item.est{ background:rgba(200,242,78,.10); border-color:rgba(200,242,78,.35); }
+  .m-label{ display:block; font-size:10px; font-weight:600; color:var(--muted); letter-spacing:.02em; margin-bottom:3px;}
+  .m-val{ font-family:var(--head-font); font-weight:700; font-size:16px; }
+  .m-item.est .m-val{ color:var(--lime); }
+
+  main{ padding:6px 14px 0; max-width:640px; margin:0 auto; }
+  .note{ background:rgba(25,194,173,.10); border:1px solid rgba(25,194,173,.30); border-left:4px solid var(--teal);
+    border-radius:10px; padding:11px 13px; margin:14px 2px 4px; font-size:12.5px; color:var(--ink); }
+  .note b{ font-weight:600; }
+
+  .group{ margin:16px 2px; }
+  .group-title{ font-family:var(--head-font); font-weight:700; font-size:16px; letter-spacing:.02em;
+    margin:0 0 8px; padding-left:2px; display:flex; align-items:center; gap:8px; }
+  .group-title .em{ font-size:17px; }
+  .group-title .g-count{ margin-left:auto; font-family:var(--body-font); font-size:11px; font-weight:600;
+    color:var(--muted); white-space:nowrap;}
+  .group-title .g-count .g-money{ color:var(--teal); }
+
+  ul{ list-style:none; margin:0; padding:0; background:var(--card);
+    border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  li{ display:flex; align-items:center; gap:11px; padding:11px 12px; cursor:pointer;
+    border-top:1px solid var(--line); user-select:none; }
+  li:first-child{ border-top:none; }
+  li:active{ background:var(--card2); }
+  .box{ flex:none; width:22px; height:22px; border-radius:6px; border:2px solid var(--line);
+    background:transparent; display:grid; place-items:center; transition:all .12s; }
+  .box svg{ width:13px; height:13px; opacity:0; transform:scale(.6); transition:all .12s; }
+  .txt{ flex:1; font-size:14px; min-width:0; }
+  .txt .qty{ color:var(--muted); font-size:12.5px; }
+  .txt .tag{ display:inline-block; font-size:9.5px; font-weight:600; color:var(--muted); border:1px solid var(--line);
+    border-radius:20px; padding:1px 7px; margin-left:4px; vertical-align:middle; }
+
+  .price{ flex:none; display:flex; align-items:center; gap:2px; background:var(--card2);
+    border:1px solid var(--line); border-radius:8px; padding:4px 8px 4px 7px; }
+  .price .cur{ font-size:12px; font-weight:600; color:var(--muted); }
+  .price input{ width:66px; border:none; background:transparent; outline:none; font-family:var(--body-font);
+    font-weight:600; font-size:13.5px; color:var(--ink); text-align:right; padding:0; }
+  .price input::placeholder{ color:var(--muted); font-weight:400; }
+  .price:focus-within{ border-color:var(--teal); }
+
+  li.done .box{ background:var(--teal); border-color:var(--teal); }
+  li.done .box svg{ opacity:1; transform:scale(1); stroke:#06100e; }
+  li.done .txt{ color:var(--done); }
+  li.done .txt .name{ text-decoration:line-through; text-decoration-color:var(--done); }
+  li.done .txt .qty{ color:var(--done); }
+
+  /* Panel finanzas */
+  .fin{ max-width:640px; margin:26px auto 0; padding:0 14px; }
+  .fin-inner{ background:var(--card); border:1px solid var(--line); border-left:4px solid var(--teal);
+    border-radius:16px; padding:16px 16px 18px; }
+  .fin-head{ font-family:var(--head-font); font-weight:700; font-size:17px; margin-bottom:3px; color:var(--ink); }
+  .fin-total{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
+  .fin-total b{ color:var(--lime); font-family:var(--head-font); font-size:18px; }
+  .fin-grid{ display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:12px; }
+  .fin-grid label{ display:flex; flex-direction:column; gap:3px; font-size:10.5px; font-weight:600;
+    color:var(--muted); letter-spacing:.02em; }
+  .fin-grid label.wide{ grid-column:1 / -1; }
+  .fin-grid input, .fin-grid select{ font-family:var(--body-font); font-size:13.5px; font-weight:500;
+    color:var(--ink); background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:8px 9px; outline:none; }
+  .fin-grid input:focus, .fin-grid select:focus{ border-color:var(--teal); }
+  .fin-grid input:disabled{ color:var(--muted); }
+  .fin-btn{ width:100%; font-family:var(--head-font); font-weight:700; font-size:16px; letter-spacing:.02em;
+    color:#06100e; background:var(--teal); border:none; border-radius:10px; padding:13px; cursor:pointer; }
+  .fin-btn:active{ background:var(--teal-dark); }
+  .fin-btn:disabled{ opacity:.45; cursor:default; }
+  .fin-status{ font-size:12px; margin-top:10px; min-height:16px; line-height:1.45; }
+  .fin-status.ok{ color:var(--lime); } .fin-status.err{ color:#ff8a8f; } .fin-status.wait{ color:var(--muted); }
+  .fin-config-toggle{ display:block; width:100%; margin-top:12px; background:none; border:none;
+    color:var(--muted); font-family:var(--body-font); font-size:12px; font-weight:600; cursor:pointer; text-align:center; }
+  .fin-config{ display:none; margin-top:10px; border-top:1px solid var(--line); padding-top:12px; }
+  .fin-config.open{ display:block; }
+  .fin-config label{ display:flex; flex-direction:column; gap:3px; font-size:10.5px; font-weight:600;
+    color:var(--muted); margin-bottom:9px; }
+  .fin-config input{ font-family:var(--body-font); font-size:12.5px; color:var(--ink); background:var(--card2);
+    border:1px solid var(--line); border-radius:8px; padding:8px 9px; outline:none; }
+  .fin-config input:focus{ border-color:var(--teal); }
+  .fin-cfg-btns{ display:flex; gap:8px; }
+  .fin-cfg-btns button{ flex:1; font-family:var(--body-font); font-weight:600; font-size:12.5px;
+    border-radius:8px; padding:9px; cursor:pointer; border:1px solid var(--line); background:var(--card2); color:var(--ink); }
+  .fin-cfg-btns button:active{ background:var(--line); }
+  .fin-note{ font-size:11px; color:var(--muted); margin:11px 0 0; line-height:1.5; }
+  .fin-note b{ color:var(--ink); }
+
+  footer{ text-align:center; color:var(--muted); font-size:11px; padding:22px 18px 6px; line-height:1.6;}
+  footer .mk{ color:var(--lime); font-weight:700; font-family:var(--head-font); letter-spacing:.14em;}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="yd"><span class="sq"></span>YD</span><span class="rule"></span><span class="plan">plan nutricional</span></div>
+  <h1>Lista de compras</h1>
+  <p class="sub"><b>Yonier Dávila</b> · Sin lácteos, sin garbanzos</p>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-list="7"  aria-selected="true">7 días<small>1 semana</small></button>
+    <button class="tab" role="tab" data-list="15" aria-selected="false">15 días<small>quincena</small></button>
+    <button class="tab" role="tab" data-list="30" aria-selected="false">1 mes<small>despensa + frescos</small></button>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-top">
+    <span class="progress-count"><b id="pc-done">0</b> de <span id="pc-total">0</span> marcados</span>
+    <button class="reset" id="reset">Desmarcar todo</button>
+  </div>
+  <div class="bar" id="bar"><i></i></div>
+  <div class="money">
+    <div class="m-item"><span class="m-label">Gastado</span><span class="m-val" id="m-spent">$0</span></div>
+    <div class="m-item"><span class="m-label">Con precio</span><span class="m-val" id="m-count">0/0</span></div>
+    <div class="m-item est"><span class="m-label">Próxima compra ≈</span><span class="m-val" id="m-est">$0</span></div>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<section class="fin">
+  <div class="fin-inner">
+    <div class="fin-head">💸 Enviar a mis finanzas</div>
+    <div class="fin-total">Registrar la compra de <span id="fin-list">7 días</span> · total <b id="fin-amount">$0</b></div>
+    <div class="fin-grid">
+      <label>Fecha<input type="date" id="fin-fecha"></label>
+      <label>Método de pago<select id="fin-metodo">
+        <option>Tarjeta Débito</option><option>Transferencia</option>
+        <option>Tarjeta Crédito</option><option>Nequi</option><option>Efectivo</option>
+      </select></label>
+      <label class="wide">Descripción<input type="text" id="fin-desc"></label>
+      <label>Presupuesto ref.<input type="text" inputmode="numeric" id="fin-presup" placeholder="opcional"></label>
+      <label>Categoría<input type="text" value="Alimentación · Mercado" disabled></label>
+    </div>
+    <button class="fin-btn" id="fin-send">Enviar a mi hoja de gastos</button>
+    <div class="fin-status" id="fin-status"></div>
+    <button class="fin-config-toggle" id="fin-cfg-toggle">⚙ Configurar conexión</button>
+    <div class="fin-config" id="fin-cfg">
+      <label>URL de tu Apps Script (termina en /exec)
+        <input type="url" id="fin-url" placeholder="https://script.google.com/macros/s/…/exec"></label>
+      <div class="fin-cfg-btns">
+        <button id="fin-save">Guardar URL</button>
+        <button id="fin-test">Probar conexión</button>
+      </div>
+      <p class="fin-note">El envío solo funciona con la app abierta <b>fuera de Claude</b> (archivo descargado o subido a un hosting). Guarda tu URL en privado: quien la tenga puede escribir en tu hoja.</p>
+    </div>
+  </div>
+</section>
+
+<footer>Toca un producto para marcarlo · escribe el precio en el recuadro<br>
+Todo se guarda en tu teléfono. Los precios quedan como referencia aunque desmarques.<br>
+<span class="mk">YONIER DÁVILA</span></footer>
+
+<script>
+const DATA = {
+  "7": { note:null, groups:[
+    {t:"Proteínas", e:"🥩", items:[["Huevos","2 docenas (24)"],["Pechuga de pollo","1.2 kg"],["Filete de pescado","800 g"],["Carne magra (res o cerdo)","600–700 g"],["Atún en agua","3 latas"]]},
+    {t:"Granos y panadería", e:"🌾", items:[["Pan integral","1 paquete"],["Arroz integral","500 g"],["Arroz blanco","500 g"],["Avena en hojuelas","500 g"],["Quinua","250 g"],["Harina de maíz (arepas)","1 paquete"]]},
+    {t:"Tubérculos", e:"🥔", items:[["Papa","1.5 kg"],["Yuca","500 g"],["Plátano (verde o maduro)","1–2"]]},
+    {t:"Verduras y ensaladas", e:"🥦", items:[["Espinaca","1 bolsa"],["Aguacate","3"],["Lechuga","1–2"],["Tomate","6–8"],["Pepino","3"],["Zanahoria (incluye baby)","500 g"],["Cebolla","2–3"],["Pimentón","1–2"],["Brócoli o coliflor","1"],["Calabacín u otra verdura","al gusto"],["Limón","4"]]},
+    {t:"Frutas", e:"🍎", items:[["Manzana","4"],["Banano","6"],["Fruta variada (naranja, mango, fresa…)","7–8"]]},
+    {t:"Frutos secos y semillas", e:"🥜", items:[["Almendras","150 g"],["Nueces","150 g"],["Maní natural","150 g"],["Mantequilla de maní","1 frasco"],["Chía o mix de semillas","1 bolsa pequeña"]]},
+    {t:"Legumbres", e:"🫘", items:[["Lentejas (para hummus)","1 bolsa pequeña"]]},
+    {t:"Bebidas y queso", e:"🥛", items:[["Bebida vegetal (almendra, avena o soya)","2–3 L"],["Yogurt vegetal","1","opcional"],["Queso fresco","250 g","ocasional"]]},
+    {t:"Despensa (revisa si ya tienes)", e:"🧂", items:[["Aceite de oliva extra virgen",""],["Café",""],["Canela en polvo",""],["Sal rosada",""]]},
+  ]},
+  "15": { note:"Los <b>frescos</b> (frutas, verduras, pescado) rinden mejor si los compras en 2 tandas durante la quincena.", groups:[
+    {t:"Proteínas", e:"🥩", items:[["Huevos","4 docenas (48)"],["Pechuga de pollo","2.5 kg"],["Filete de pescado","1.6 kg"],["Carne magra (res o cerdo)","1.3 kg"],["Atún en agua","6 latas"]]},
+    {t:"Granos y panadería", e:"🌾", items:[["Pan integral","2 paquetes"],["Arroz integral","1 kg"],["Arroz blanco","1 kg"],["Avena en hojuelas","1 kg"],["Quinua","500 g"],["Harina de maíz (arepas)","1 paquete grande (~2 kg)"]]},
+    {t:"Tubérculos", e:"🥔", items:[["Papa","3 kg"],["Yuca","1 kg"],["Plátano","3–4"]]},
+    {t:"Verduras y ensaladas", e:"🥦", items:[["Espinaca","2 bolsas"],["Aguacate","6"],["Lechuga","3–4"],["Tomate","15"],["Pepino","6"],["Zanahoria (incluye baby)","1 kg"],["Cebolla","5–6"],["Pimentón","3–4"],["Brócoli o coliflor","2"],["Limón","8"]]},
+    {t:"Frutas", e:"🍎", items:[["Manzana","8"],["Banano","12"],["Fruta variada","15–16"]]},
+    {t:"Frutos secos y semillas", e:"🥜", items:[["Almendras","300 g"],["Nueces","300 g"],["Maní natural","300 g"],["Mantequilla de maní","1 frasco grande"],["Chía o mix de semillas","1 bolsa"]]},
+    {t:"Legumbres", e:"🫘", items:[["Lentejas (para hummus)","1 bolsa"]]},
+    {t:"Bebidas y queso", e:"🥛", items:[["Bebida vegetal","5–6 L"],["Yogurt vegetal","2","opcional"],["Queso fresco","500 g","ocasional"]]},
+    {t:"Despensa", e:"🧂", items:[["Aceite de oliva extra virgen","reponer si falta"],["Café",""],["Canela en polvo",""],["Sal rosada",""]]},
+  ]},
+  "30": { note:"Para el mes conviene separar: la <b>despensa</b> se compra una sola vez, y los <b>frescos</b> en 4 compras semanales para que no se dañen. Las cantidades de frescos son <b>por semana</b>.", groups:[
+    {t:"Despensa · 1 compra al mes", e:"🧂", items:[["Arroz integral","2 kg"],["Arroz blanco","2 kg"],["Avena en hojuelas","2 kg"],["Quinua","1 kg"],["Harina de maíz (arepas)","2 kg"],["Atún en agua","12 latas"],["Almendras","500 g"],["Nueces","500 g"],["Maní natural","500 g"],["Mantequilla de maní","2 frascos"],["Chía o mix de semillas","1–2 bolsas"],["Lentejas","1 bolsa"],["Aceite de oliva extra virgen","1 botella grande"],["Café","1 paquete"],["Canela en polvo","1"],["Sal rosada","1"],["Bebida vegetal (tetrapak larga duración)","20–24 L","si es refrigerada, semanal"]]},
+    {t:"Frescos · compra semanal × 4", e:"🧊", items:[["Huevos","2 docenas / semana"],["Pechuga de pollo","1.2 kg / semana"],["Filete de pescado","800 g / semana"],["Carne magra","700 g / semana"],["Pan integral","1 paquete / semana","o congela"],["Queso fresco","250 g / semana"],["Yogurt vegetal","1 / semana","opcional"],["Papa","1.5 kg / semana"],["Yuca","500 g / semana"],["Plátano","1–2 / semana"],["Espinaca","1 bolsa / semana"],["Aguacate","3 / semana"],["Lechuga","1–2 / semana"],["Tomate","6–8 / semana"],["Pepino","3 / semana"],["Zanahoria","500 g / semana"],["Cebolla","2–3 / semana"],["Pimentón","1–2 / semana"],["Brócoli o coliflor","1 / semana"],["Limón","4 / semana"],["Manzana","4 / semana"],["Banano","6 / semana"],["Fruta variada","7–8 / semana"]]},
+  ]}
+};
+const LIST_LABEL = {"7":"7 días","15":"15 días","30":"1 mes"};
+
+// Migración de datos guardados con el nombre anterior
+(function migrate(){ try{
+  [['angell-shop','yd-shop'],['angell-prices','yd-prices'],['angell-webapp-url','yd-webapp-url']].forEach(([o,n])=>{
+    const ov=localStorage.getItem(o);
+    if(ov!==null && localStorage.getItem(n)===null){ localStorage.setItem(n,ov); }
+    if(ov!==null) localStorage.removeItem(o);
+  });
+}catch(e){} })();
+
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+const main = document.getElementById('main');
+let current = "7";
+let state  = loadJSON('yd-shop');
+let prices = loadJSON('yd-prices');
+
+function loadJSON(k){ try{ return JSON.parse(localStorage.getItem(k)||'{}'); }catch(e){ return {}; } }
+function save(){ try{
+  localStorage.setItem('yd-shop', JSON.stringify(state));
+  localStorage.setItem('yd-prices', JSON.stringify(prices));
+}catch(e){} }
+function fmt(n){ if(!n) return '$0'; return '$' + Math.round(n).toLocaleString('es-CO'); }
+function listSpent(k){ let s=0; DATA[k].groups.forEach((g,gi)=>g.items.forEach((it,ii)=>{ const key=`${k}-${gi}-${ii}`; if(prices[key]) s+=prices[key]; })); return s; }
+
+function render(){
+  const list = DATA[current];
+  main.innerHTML = '';
+  if(list.note){ const n=document.createElement('div'); n.className='note'; n.innerHTML=list.note; main.appendChild(n); }
+  list.groups.forEach((g, gi)=>{
+    const wrap=document.createElement('div'); wrap.className='group';
+    const title=document.createElement('div'); title.className='group-title';
+    title.innerHTML=`<span class="em">${g.e}</span> ${g.t} <span class="g-count" data-g="${gi}"></span>`;
+    wrap.appendChild(title);
+    const ul=document.createElement('ul');
+    g.items.forEach((it, ii)=>{
+      const key=`${current}-${gi}-${ii}`;
+      const li=document.createElement('li'); li.dataset.key=key;
+      if(state[key]) li.classList.add('done');
+      const tag=it[2]?`<span class="tag">${it[2]}</span>`:'';
+      const qty=it[1]?` <span class="qty">— ${it[1]}</span>`:'';
+      const pv=prices[key]?prices[key].toLocaleString('es-CO'):'';
+      li.innerHTML=`<span class="box">${CHECK}</span>`+
+        `<span class="txt"><span class="name">${it[0]}</span>${qty}${tag}</span>`+
+        `<span class="price"><span class="cur">$</span>`+
+        `<input type="text" inputmode="numeric" class="pin" data-key="${key}" placeholder="0" value="${pv}"></span>`;
+      li.addEventListener('click',(ev)=>{ if(ev.target.closest('.price')) return;
+        state[key]=!state[key]; li.classList.toggle('done',!!state[key]); save(); updateTotals(); });
+      const input=li.querySelector('.pin');
+      input.addEventListener('click',e=>e.stopPropagation());
+      input.addEventListener('input',()=>{ const d=input.value.replace(/\D/g,''); const num=d?parseInt(d,10):0;
+        if(num>0){prices[key]=num;}else{delete prices[key];}
+        input.value=num?num.toLocaleString('es-CO'):''; save(); updateTotals(); });
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul); main.appendChild(wrap);
+  });
+  updateTotals();
+}
+
+function updateTotals(){
+  const list=DATA[current]; let total=0,done=0,spent=0,priced=0;
+  list.groups.forEach((g,gi)=>{ let gt=0,gd=0,gm=0;
+    g.items.forEach((it,ii)=>{ const key=`${current}-${gi}-${ii}`; total++; gt++;
+      if(state[key]){done++;gd++;} if(prices[key]){spent+=prices[key];priced++;gm+=prices[key];} });
+    const gc=main.querySelector(`.g-count[data-g="${gi}"]`);
+    if(gc) gc.innerHTML=`${gd}/${gt}`+(gm?` · <span class="g-money">${fmt(gm)}</span>`:'');
+  });
+  document.getElementById('pc-done').textContent=done;
+  document.getElementById('pc-total').textContent=total;
+  const pct=total?Math.round(done/total*100):0;
+  const bar=document.getElementById('bar');
+  bar.querySelector('i').style.width=pct+'%'; bar.classList.toggle('full',done===total&&total>0);
+  document.getElementById('m-spent').textContent=fmt(spent);
+  document.getElementById('m-count').textContent=`${priced}/${total}`;
+  const est=priced>0?(spent/priced)*total:0;
+  document.getElementById('m-est').textContent=fmt(est);
+  updateFin();
+}
+
+/* ---------- Panel finanzas ---------- */
+const $=id=>document.getElementById(id);
+function updateFin(){
+  $('fin-list').textContent=LIST_LABEL[current];
+  $('fin-amount').textContent=fmt(listSpent(current));
+  const desc=$('fin-desc');
+  if(!desc.dataset.touched) desc.value=`Mercado — plan nutricional (${LIST_LABEL[current]})`;
+}
+$('fin-desc').addEventListener('input',e=>{ e.target.dataset.touched='1'; });
+$('fin-presup').addEventListener('input',e=>{ const d=e.target.value.replace(/\D/g,'');
+  e.target.value=d?parseInt(d,10).toLocaleString('es-CO'):''; });
+
+const savedUrl=(()=>{ try{return localStorage.getItem('yd-webapp-url')||'';}catch(e){return '';} })();
+if(savedUrl) $('fin-url').value=savedUrl;
+$('fin-cfg-toggle').addEventListener('click',()=>$('fin-cfg').classList.toggle('open'));
+$('fin-save').addEventListener('click',()=>{
+  const u=$('fin-url').value.trim();
+  try{ localStorage.setItem('yd-webapp-url',u); }catch(e){}
+  setStatus(u?'URL guardada.':'URL borrada.','ok');
+});
+function setStatus(msg,kind){ const el=$('fin-status'); el.textContent=msg; el.className='fin-status '+(kind||''); }
+
+$('fin-test').addEventListener('click',async()=>{
+  const url=$('fin-url').value.trim();
+  if(!url){ setStatus('Primero pega y guarda tu URL.','err'); return; }
+  setStatus('Probando conexión…','wait');
+  try{
+    const res=await fetch(url,{method:'GET',redirect:'follow'});
+    const data=await res.json();
+    if(data.status==='ok') setStatus(`Conectado ✅ Hoja: ${data.hoja} · próxima fila: ${data.proximaFila}`,'ok');
+    else setStatus('Respondió con error: '+(data.mensaje||'desconocido'),'err');
+  }catch(err){ setStatus('No se pudo conectar. Si estás dentro de Claude, descarga el archivo y ábrelo aparte.','err'); }
+});
+
+$('fin-send').addEventListener('click',async()=>{
+  const url=$('fin-url').value.trim();
+  const monto=listSpent(current);
+  if(!url){ $('fin-cfg').classList.add('open'); setStatus('Configura primero la URL de conexión abajo.','err'); return; }
+  if(monto<=0){ setStatus('No hay precios registrados en esta lista todavía.','err'); return; }
+  const payload={
+    fecha:$('fin-fecha').value || new Date().toISOString().slice(0,10),
+    categoria:'Alimentación', subcategoria:'Mercado', tipo:'Variable',
+    descripcion:$('fin-desc').value.trim()||('Mercado — plan nutricional'),
+    metodo:$('fin-metodo').value, prioridad:'Alta',
+    presupuesto:($('fin-presup').value.replace(/\D/g,'')||''),
+    monto:monto
+  };
+  const btn=$('fin-send'); btn.disabled=true; setStatus('Enviando…','wait');
+  try{
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload),redirect:'follow'});
+    const data=await res.json();
+    if(data.status==='ok') setStatus(`Registrado ✅ ${fmt(data.monto)} en tu hoja "${data.hoja}" (fila ${data.fila}).`,'ok');
+    else setStatus('Error del script: '+(data.mensaje||'desconocido'),'err');
+  }catch(err){ setStatus('No se pudo enviar. Si estás viendo esto dentro de Claude, descarga el archivo y ábrelo aparte.','err'); }
+  finally{ btn.disabled=false; }
+});
+
+/* ---------- Tabs / reset ---------- */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected','false'));
+    tab.setAttribute('aria-selected','true'); current=tab.dataset.list;
+    render(); window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+document.getElementById('reset').addEventListener('click',()=>{
+  DATA[current].groups.forEach((g,gi)=>g.items.forEach((it,ii)=>{ delete state[`${current}-${gi}-${ii}`]; }));
+  save(); render();
+});
+
+$('fin-fecha').value=new Date().toISOString().slice(0,10);
+render();
+</script>
+</body>
+</html>
